@@ -1,0 +1,132 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 1210" width="960" height="1210" font-family="'Noto Sans TC','PingFang TC','Microsoft JhengHei','Droid Sans Fallback',sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#475569"/>
+    </marker>
+    <style>
+      .t  { font-size: 16px; font-weight: 700; fill: #0f172a; }
+      .d  { font-size: 13px; fill: #334155; }
+      .m  { font-family: 'JetBrains Mono','Consolas','DejaVu Sans Mono',monospace; font-size: 12.5px; fill: #334155; }
+      .lane { font-size: 14px; font-weight: 700; letter-spacing: 1px; }
+      .lbl { font-size: 12px; fill: #475569; font-weight: 600; }
+      .ln  { fill: none; stroke: #475569; stroke-width: 1.8; marker-end: url(#arrow); }
+    </style>
+  </defs>
+
+  <!-- background -->
+  <rect width="960" height="1210" fill="#ffffff"/>
+
+  <!-- title -->
+  <text x="480" y="38" text-anchor="middle" font-size="22" font-weight="700" fill="#0f172a">Qwen3-4B × MedQuAD QLoRA 微調流程</text>
+  <text x="480" y="62" text-anchor="middle" font-size="13" fill="#64748b">先量測 → 再訓練 → 再量測 → 比較</text>
+
+  <!-- Step 0-1 environment -->
+  <rect x="280" y="80" width="400" height="60" rx="10" fill="#f1f5f9" stroke="#64748b" stroke-width="1.5"/>
+  <text x="480" y="105" text-anchor="middle" class="t">Step 0–1 · 環境準備</text>
+  <text x="480" y="127" text-anchor="middle" class="d">安裝套件 · 檢查 GPU 與顯存 · 建立工作目錄</text>
+
+  <!-- lanes -->
+  <rect x="40" y="165" width="380" height="365" rx="14" fill="#eff6ff" stroke="#bfdbfe"/>
+  <text x="60" y="191" class="lane" fill="#1d4ed8">模型準備</text>
+  <rect x="540" y="165" width="380" height="365" rx="14" fill="#f0fdf4" stroke="#bbf7d0"/>
+  <text x="560" y="191" class="lane" fill="#15803d">資料準備</text>
+
+  <!-- env -> lanes -->
+  <path class="ln" d="M480 140 V155 H230 V208"/>
+  <path class="ln" d="M480 140 V155 H730 V208"/>
+
+  <!-- model lane -->
+  <rect x="70" y="210" width="320" height="80" rx="10" fill="#fff" stroke="#2563eb" stroke-width="1.6"/>
+  <text x="230" y="240" text-anchor="middle" class="t">Step 2 · 下載基礎模型</text>
+  <text x="230" y="264" text-anchor="middle" class="m">snapshot_download("Qwen/Qwen3-4B")</text>
+
+  <path class="ln" d="M230 290 V318"/>
+  <rect x="70" y="320" width="320" height="80" rx="10" fill="#fff" stroke="#2563eb" stroke-width="1.6"/>
+  <text x="230" y="350" text-anchor="middle" class="t">Step 3 · 4-bit 量化設定</text>
+  <text x="230" y="374" text-anchor="middle" class="d">NF4 · bf16 compute · double quant</text>
+
+  <path class="ln" d="M230 400 V428"/>
+  <rect x="70" y="430" width="320" height="80" rx="10" fill="#fff" stroke="#2563eb" stroke-width="1.6"/>
+  <text x="230" y="456" text-anchor="middle" class="t">Step 4 · 載入 tokenizer 與模型</text>
+  <text x="230" y="477" text-anchor="middle" class="d">4-bit 權重（約 2.5 GB），全部凍結</text>
+  <text x="230" y="497" text-anchor="middle" class="m">prepare_model_for_kbit_training</text>
+
+  <!-- data lane -->
+  <rect x="570" y="210" width="320" height="80" rx="10" fill="#fff" stroke="#16a34a" stroke-width="1.6"/>
+  <text x="730" y="240" text-anchor="middle" class="t">Step 5 · 下載 MedQuAD</text>
+  <text x="730" y="264" text-anchor="middle" class="d">train / validation 兩份 CSV</text>
+
+  <path class="ln" d="M730 290 V318"/>
+  <rect x="570" y="320" width="320" height="80" rx="10" fill="#fff" stroke="#16a34a" stroke-width="1.6"/>
+  <text x="730" y="350" text-anchor="middle" class="t">Step 6 · 資料探索</text>
+  <text x="730" y="374" text-anchor="middle" class="d">16,078 筆 · 答案長度中位數 139 字</text>
+
+  <path class="ln" d="M730 400 V428"/>
+  <rect x="570" y="430" width="320" height="80" rx="10" fill="#fff" stroke="#16a34a" stroke-width="1.6"/>
+  <text x="730" y="456" text-anchor="middle" class="t">Step 7 · 篩選樣本</text>
+  <text x="730" y="477" text-anchor="middle" class="d">非空問題、答案 20–160 字</text>
+  <text x="730" y="497" text-anchor="middle" class="d">train 96 筆 · eval 8 筆</text>
+
+  <!-- lanes -> baseline -->
+  <path class="ln" d="M230 510 V550 H380 V578"/>
+  <text x="300" y="543" text-anchor="middle" class="lbl">4-bit 模型</text>
+  <path class="ln" d="M730 510 V550 H580 V578"/>
+  <text x="660" y="543" text-anchor="middle" class="lbl">eval 8 筆</text>
+
+  <!-- baseline -->
+  <rect x="250" y="580" width="460" height="92" rx="10" fill="#fff7ed" stroke="#ea580c" stroke-width="1.8"/>
+  <text x="480" y="608" text-anchor="middle" class="t">Step 8–10 · Baseline 評估</text>
+  <text x="480" y="632" text-anchor="middle" class="d">generate_answer（貪婪解碼）+ answer_f1（token F1）</text>
+  <text x="480" y="657" text-anchor="middle" font-size="14" font-weight="700" fill="#c2410c">原始模型 token F1 = 25.96</text>
+
+  <!-- training lane -->
+  <path class="ln" d="M480 672 V713"/>
+  <rect x="40" y="715" width="880" height="295" rx="14" fill="#f5f3ff" stroke="#ddd6fe"/>
+  <text x="60" y="741" class="lane" fill="#6d28d9">訓練（QLoRA SFT）</text>
+
+  <rect x="70" y="755" width="320" height="90" rx="10" fill="#fff" stroke="#7c3aed" stroke-width="1.6"/>
+  <text x="230" y="784" text-anchor="middle" class="t">Step 12 · LoRA 設定</text>
+  <text x="230" y="808" text-anchor="middle" class="d">r = 8 · α = 16 · dropout 0.05</text>
+  <text x="230" y="829" text-anchor="middle" class="m">target_modules="all-linear"</text>
+
+  <rect x="570" y="755" width="320" height="90" rx="10" fill="#fff" stroke="#7c3aed" stroke-width="1.6"/>
+  <text x="730" y="784" text-anchor="middle" class="t">Step 11 · 套用 chat template</text>
+  <text x="730" y="808" text-anchor="middle" class="d">system + user + assistant</text>
+  <text x="730" y="829" text-anchor="middle" class="d">→ 一段完整的 text</text>
+
+  <!-- model and train data into training -->
+  <path class="ln" d="M70 470 H22 V935 H278"/>
+  <text x="160" y="927" text-anchor="middle" class="lbl">4-bit 凍結底模</text>
+  <path class="ln" d="M890 470 H938 V800 H892"/>
+  <text x="932" y="624" text-anchor="end" class="lbl">train 96 筆</text>
+
+  <path class="ln" d="M230 845 V870 H400 V888"/>
+  <text x="315" y="864" text-anchor="middle" class="lbl">peft_config</text>
+  <path class="ln" d="M730 845 V870 H560 V888"/>
+  <text x="645" y="864" text-anchor="middle" class="lbl">train_dataset</text>
+
+  <rect x="280" y="890" width="400" height="95" rx="10" fill="#fff" stroke="#7c3aed" stroke-width="2"/>
+  <text x="480" y="918" text-anchor="middle" class="t">Step 13 · SFTTrainer 訓練</text>
+  <text x="480" y="942" text-anchor="middle" class="d">掛上 LoRA，只更新 A、B 矩陣（約 0.4% 參數）</text>
+  <text x="480" y="964" text-anchor="middle" class="d">有效 batch 8 · 2 epochs · 共 24 steps</text>
+
+  <!-- final eval -->
+  <path class="ln" d="M480 985 V1038"/>
+  <rect x="230" y="1040" width="500" height="100" rx="10" fill="#fff7ed" stroke="#ea580c" stroke-width="1.8"/>
+  <text x="480" y="1068" text-anchor="middle" class="t">Step 14 · 微調後評估與比較</text>
+  <text x="480" y="1095" text-anchor="middle" font-size="14" font-weight="700" fill="#c2410c">token F1：25.96 → 25.38（Δ −0.58）</text>
+  <text x="480" y="1121" text-anchor="middle" class="d">相同 8 題、相同解碼設定 · 挑出最弱 2 題做錯誤分析</text>
+
+  <!-- legend -->
+  <g font-size="12" fill="#475569">
+    <rect x="190" y="1170" width="14" height="14" rx="3" fill="#eff6ff" stroke="#2563eb"/>
+    <text x="210" y="1182">模型</text>
+    <rect x="270" y="1170" width="14" height="14" rx="3" fill="#f0fdf4" stroke="#16a34a"/>
+    <text x="290" y="1182">資料</text>
+    <rect x="350" y="1170" width="14" height="14" rx="3" fill="#fff7ed" stroke="#ea580c"/>
+    <text x="370" y="1182">評估</text>
+    <rect x="430" y="1170" width="14" height="14" rx="3" fill="#f5f3ff" stroke="#7c3aed"/>
+    <text x="450" y="1182">訓練</text>
+    <text x="510" y="1182">數字取自 Notebook 在 Tesla T4 上的執行結果</text>
+  </g>
+</svg>
